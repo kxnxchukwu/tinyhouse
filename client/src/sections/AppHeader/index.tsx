@@ -27,7 +27,8 @@ export const AppHeader = ({viewer, setViewer}: Props) => {
             return;
         }
         if (pathname.includes("/listings") && pathnameSubStrings.length === 3) {
-            setSearch(pathnameSubStrings[2]);
+            let finalPathName = pathnameSubStrings[2].split("%20");
+            setSearch((finalPathName.length > 1) ? finalPathName.join(" ") : pathnameSubStrings[2]);
             return;
         }
     }, [pathname])
