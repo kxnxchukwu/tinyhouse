@@ -78,13 +78,18 @@ export const typeDefs = gql`
     authUrl: String!
     user(id: ID!): User!
     listing(id: ID!): Listing!
-    listings(location: String, filter: ListingsFilter!, limit: Int!, page: Int!): Listings!
+    listings(
+      location: String
+      filter: ListingsFilter!
+      limit: Int!
+      page: Int!
+    ): Listings!
   }
 
   type Mutation {
     logIn(input: LogInInput): Viewer!
     logOut: Viewer!
-    connectStripe(input: ConnectStripeInput): Viewer!
+    connectStripe(input: ConnectStripeInput!): Viewer!
     disconnectStripe: Viewer!
   }
 `;

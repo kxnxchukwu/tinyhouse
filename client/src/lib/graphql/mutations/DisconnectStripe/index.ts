@@ -1,7 +1,7 @@
 import { gql } from "apollo-boost";
 
 export const DISCONNECT_STRIPE = gql`
-    mutation DisconnectStripe() {
+    mutation DisconnectStripe {
         disconnectStripe {
             hasWallet
         }

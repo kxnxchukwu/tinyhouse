@@ -185,40 +185,37 @@ export const viewerResolvers: IResolvers = {
         disconnectStripe: async (
             _root: undefined,
             _args: {},
-            {db, req}: {db: Database, req: Request}
-        ): Promise<Viewer> => {
-
+            { db, req }: { db: Database; req: Request }
+          ): Promise<Viewer> => {
             try {
-                let viewer = await authorize(db, req);
-
-                if (!viewer) {
-                    throw new Error("Viewer cannot be found");
-                }
-
-                const updateRes = await db.users.findOneAndUpdate(
-                    { _id: viewer._id },
-                    { $set: { walletId: undefined } },
-                    { returnOriginal: false }
-                )
-
-                if (!updateRes.value) {
-                    throw new Error("Viewer could not be updated.");
-                }
-
-                viewer = updateRes.value;
-
-                return {
-                    _id: viewer._id,
-                    token: viewer.token,
-                    avatar: viewer.avatar,
-                    walletId: viewer.walletId,
-                    didRequest: true
-                }
-
-            } catch(error) {
-                throw new Error(`Failed to disconnect with Stripe: ${JSON.stringify(error)}`);
+              let viewer = await authorize(db, req);
+              if (!viewer) {
+                throw new Error("viewer cannot be found");
+              }
+      
+              const updateRes = await db.users.findOneAndUpdate(
+                { _id: viewer._id },
+                { $set: { walletId: undefined } },
+                { returnOriginal: false }
+              );
+      
+              if (!updateRes.value) {
+                throw new Error("viewer could not be updated");
+              }
+      
+              viewer = updateRes.value;
+      
+              return {
+                _id: viewer._id,
+                token: viewer.token,
+                avatar: viewer.avatar,
+                walletId: viewer.walletId,
+                didRequest: true
+              };
+            } catch (error) {
+              throw new Error(`Failed to disconnect with Stripe: ${error}`);
             }
-        }
+          }
     },
     Viewer: {
         id: (viewer: Viewer): string | undefined => { return viewer._id},
