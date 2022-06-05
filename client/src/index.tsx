@@ -81,7 +81,7 @@ const App = () => {
     </Affix>
     <Switch>
     <Route path="/" element={<Home />} />
-    <Route path="/host" element={<Host />} />
+    <Route path="/host" element={<Host viewer={viewer} />} />
     <Route path="/listing/:id" element={<Listing />} />
     <Route path="/listings/:location" element={<Listings />} />
     <Route path="/listings" element={<Listings />} />

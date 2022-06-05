@@ -87,7 +87,7 @@ export const Home = () => {
             </Link>
           </Col>
           <Col xs={24} sm={12}>
-            <Link to="/listings/cancún">
+            <Link to="/listings/cancun">
               <div className="home__listings-img-cover">
                 <img src={cancunImage} alt="Cancún" className="home__listings-img" />
               </div>
