@@ -11,6 +11,7 @@ import { LogIn as LogInData, LogInVariables } from "./lib/graphql/mutations/LogI
 import * as serviceWorker from "./serviceWorker";
 import "./styles/index.css";
 import { AppHeaderSkeleton, ErrorBanner } from "./lib/components";
+import { StripeProvider, Elements } from "react-stripe-elements";
 
 const client = new ApolloClient({
   uri: "/api",
@@ -73,6 +74,7 @@ const App = () => {
 
   return (
     <>
+    <StripeProvider apiKey={process.env.REACT_APP_S_PUBLISHABLE_KEY as string}>
     <Router>
     <Layout id="app">
       {logInErrorBannerElement}
@@ -82,7 +84,7 @@ const App = () => {
     <Switch>
     <Route path="/" element={<Home />} />
     <Route path="/host" element={<Host viewer={viewer} />} />
-    <Route path="/listing/:id" element={<Listing />} />
+    <Route path="/listing/:id" element={<Elements><Listing viewer={viewer} /></Elements>} />
     <Route path="/listings/:location" element={<Listings />} />
     <Route path="/listings" element={<Listings />} />
     <Route path="/login" element={<Login setViewer={setViewer} />} />
@@ -92,6 +94,7 @@ const App = () => {
     </Switch>
     </Layout>
     </Router>
+    </StripeProvider>
     </>
   );
 }
