@@ -1,4 +1,4 @@
-//require("dotenv").config();
+require("dotenv").config();
 
 import express, { Application } from "express";
 import bodyParser from "body-parser";
@@ -15,8 +15,8 @@ const mount = async (app: Application) => {
   app.use(cookieParser(process.env.SECRET));
   app.use(compression());
 
-  app.use(express.static(`${__dirname}/client`));
-  app.get("/*", (_req, res) => res.sendFile(`${__dirname}/client/index.html`));
+  //app.use(express.static(`${__dirname}/client`));
+  //app.get("/*", (_req, res) => res.sendFile(`${__dirname}/client/index.html`));
 
   const server = new ApolloServer({
     typeDefs,
