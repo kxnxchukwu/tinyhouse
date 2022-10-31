@@ -10,6 +10,7 @@ import { ListingsFilter } from '../../lib/graphql/globalTypes';
 import mapBackground from "./assets/map-background.jpg";
 import sanFransiscoImage from './assets/san-fransisco.jpg';
 import cancunImage from './assets/cancun.jpg';
+import { useScrollToTop } from '../../lib/hooks';
 
 const { Content } = Layout;
 const { Paragraph, Title} = Typography;
@@ -23,8 +24,11 @@ export const Home = () => {
             filter: ListingsFilter.PRICE_HIGH_TO_LOW,
             limit: PAGE_LIMIT,
             page: PAGE_NUMBER
-        }
+        },
+        fetchPolicy: "cache-and-network"
     });
+
+    useScrollToTop();
 
     const navigate = useNavigate();
 
@@ -39,7 +43,7 @@ export const Home = () => {
 
     const renderListingsSection = () => {
         if (loading) {
-            return <HomeListingsSkeleton />
+            return <HomeListingsSkeleton title="Premium Listings - Loading" />
         }
 
         if (data) {

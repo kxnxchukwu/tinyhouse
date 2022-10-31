@@ -7,6 +7,7 @@ import { LISTINGS } from "../../lib/graphql/queries";
 import { Listings as ListingsData, ListingsVariables } from "../../lib/graphql/queries/Listings/__generated__/Listings";
 import { ListingsFilter } from "../../lib/graphql/globalTypes";
 import { ListingsFilters, ListingsPagination, ListingsSkeleton } from "./Components";
+import { useScrollToTop } from '../../lib/hooks';
 
 const { Content } = Layout;
 
@@ -33,6 +34,8 @@ export const Listings = () => {
       page
     }
   });
+
+  useScrollToTop();
 
   useEffect(() => {
     setPage(1);

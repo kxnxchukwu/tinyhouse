@@ -31,6 +31,7 @@ import {
   HostListing as HostListingData,
   HostListingVariables,
 } from "../../lib/graphql/mutations/HostListing/__generated__/HostListing";
+import { useScrollToTop } from '../../lib/hooks';
 
 interface Props {
   viewer: Viewer;
@@ -60,6 +61,8 @@ export const Host = ({ viewer }: Props) => {
       );
     },
   });
+
+  useScrollToTop();
 
   const dummyRequest = ({ file, onSuccess }: any) => {
     setTimeout(() => {

@@ -12,6 +12,7 @@ import * as serviceWorker from "./serviceWorker";
 import "./styles/index.css";
 import { AppHeaderSkeleton, ErrorBanner } from "./lib/components";
 import { StripeProvider, Elements } from "react-stripe-elements";
+import { Navigate } from 'react-router-dom'
 
 const client = new ApolloClient({
   uri: "/api",
@@ -90,7 +91,8 @@ const App = () => {
     <Route path="/login" element={<Login setViewer={setViewer} />} />
     <Route path="/stripe" element={<Stripe viewer={viewer} setViewer={setViewer} />} />
     <Route path="/user/:id" element={<User viewer={viewer} setViewer={setViewer} />} />
-    <Route element={<NotFound />} />
+    <Route path="/404" element={<NotFound/>} />
+    <Route path="*" element={<Navigate replace to="/404" />} />
     </Switch>
     </Layout>
     </Router>

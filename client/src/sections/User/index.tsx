@@ -10,6 +10,7 @@ import { Col, Layout, Row } from "antd";
 import { UserBookings, UserListings, UserProfile } from "./components";
 import { Viewer } from "../../lib/types";
 import { ErrorBanner, PageSkeleton } from "../../lib/components";
+import { useScrollToTop } from '../../lib/hooks';
 interface Props {
   viewer: Viewer;
   setViewer: (viewer: Viewer) => void;
@@ -35,9 +36,12 @@ export const User = ({ viewer, setViewer }: Props) => {
         listingsPage,
         limit: PAGE_LIMIT,
       },
+      fetchPolicy: "cache-and-network"
     }
   );
 
+  useScrollToTop();
+  
   const handleUserRefetch = async () => {
     await refetch();
   };

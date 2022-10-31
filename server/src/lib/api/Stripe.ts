@@ -29,5 +29,16 @@ export const Stripe = {
         if (res.status !== "succeeded") {
             throw new Error("Failed to create charge with Stripe.");
         }
-    }
+    },
+    disconnect: async (stripeUserId: string) => {
+        // @ts-ignore
+        const response = await client.oauth.deauthorize({
+          /* eslint-disable @typescript-eslint/camelcase */
+          client_id: `${process.env.S_CLIENT_ID}`,
+          stripe_user_id: stripeUserId
+          /* eslint-enable @typescript-eslint/camelcase */
+        });
+    
+        return response;
+      },
 }

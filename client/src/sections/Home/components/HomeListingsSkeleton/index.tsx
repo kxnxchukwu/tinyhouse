@@ -1,13 +1,22 @@
 import React from "react";
-import { Card, List, Skeleton } from "antd";
+import { Card, List, Skeleton, Typography } from "antd";
 
 import listingLoadingCardCover from "../../assets/listing-loading-card-cover.jpg";
 
-export const HomeListingsSkeleton = () => {
+interface Props {
+  title: string;
+}
+
+const { Title } = Typography;
+
+export const HomeListingsSkeleton = ({ title }: Props) => {
   const emptyData = [{}, {}, {}, {}];
 
   return (
     <div className="home-listings-skeleton">
+      <Title level={4} className="home-listings__title">
+        {title}
+      </Title>
       <Skeleton paragraph={{ rows: 0 }} />
       <List
         grid={{

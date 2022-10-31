@@ -11,6 +11,7 @@ import { Viewer } from "../../lib/types";
 import { Navigate } from 'react-router-dom'
 // Image Assets
 import googleLogo from "./assets/google_logo.jpg";
+import { useScrollToTop } from '../../lib/hooks';
 
 
 interface Props {
@@ -35,6 +36,8 @@ export const Login = ({setViewer}: Props) => {
     }
   });
   const logInRef = useRef(logIn)
+
+  useScrollToTop();
 
   useEffect(() => {
     const code = new URL(window.location.href).searchParams.get("code");

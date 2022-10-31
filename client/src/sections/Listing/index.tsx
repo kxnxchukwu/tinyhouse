@@ -8,6 +8,7 @@ import { Col, Layout, Row  } from 'antd';
 import { ListingBookings, ListingCreateBooking, WrappedListingCreateBookingModal as ListingCreateBookingModal, ListingDetails } from './components';
 import { Moment } from 'moment';
 import { Viewer } from '../../lib/types';
+import { useScrollToTop } from '../../lib/hooks';
 
 interface Props {
     viewer: Viewer
@@ -32,6 +33,8 @@ export const Listing = ({viewer}: Props) => {
             limit: PAGE_LIMIT,
         }
     });
+
+    useScrollToTop();
 
     const clearBookingData = () => {
         setModalVisible(false);

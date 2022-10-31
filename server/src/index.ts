@@ -1,4 +1,4 @@
-require("dotenv").config();
+//require("dotenv").config();
 
 import express, { Application } from "express";
 import bodyParser from "body-parser";
