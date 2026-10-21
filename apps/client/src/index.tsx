@@ -12,6 +12,7 @@ import "./styles/index.css";
 import { AppHeaderSkeleton, ErrorBanner } from "./lib/components";
 import { StripeProvider, Elements } from "react-stripe-elements";
 import { Navigate } from 'react-router-dom'
+import { routerFuture } from "./lib/router";
 
 const csrfLink = setContext((_operation, { headers }) => ({
   headers: {
@@ -76,7 +77,7 @@ const App = () => {
   return (
     <>
     <StripeProvider apiKey={import.meta.env.VITE_S_PUBLISHABLE_KEY}>
-    <Router>
+    <Router future={routerFuture}>
     <Layout id="app">
       {logInErrorBannerElement}
     <Affix offsetTop={0} className="app__affix-header">

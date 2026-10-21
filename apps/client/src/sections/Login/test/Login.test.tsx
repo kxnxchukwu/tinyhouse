@@ -7,6 +7,7 @@ import { Login } from "../index";
 import { AUTH_URL } from "../../../lib/graphql/queries";
 import { LOG_IN } from "../../../lib/graphql/mutations";
 import { redirectTo } from "../../../lib/utils";
+import { routerFuture } from "../../../lib/router";
 
 vi.mock("../../../lib/utils", async importOriginal => ({
   ...(await importOriginal<typeof import("../../../lib/utils")>()),
@@ -32,7 +33,7 @@ const logInRequest = {
 const renderLogin = (route: string, mocks: MockedResponse[], setViewer = vi.fn()) =>
   render(
     <MockedProvider mocks={mocks}>
-      <MemoryRouter initialEntries={[route]}>
+      <MemoryRouter initialEntries={[route]} future={routerFuture}>
         <Routes>
           <Route path="/login" element={<Login setViewer={setViewer} />} />
           <Route path="/user/:id" element={<div>User page</div>} />

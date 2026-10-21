@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { Home } from "../index";
 import { LISTINGS } from "../../../lib/graphql/queries";
 import { ListingsFilter } from "../../../lib/graphql/globalTypes";
+import { routerFuture } from "../../../lib/router";
 
 const listingsRequest = {
   query: LISTINGS,
@@ -44,7 +45,7 @@ const LocationDisplay = () => <div data-testid="location">{useLocation().pathnam
 const renderHome = (mocks: MockedResponse[] = [listingsSuccess]) =>
   render(
     <MockedProvider mocks={mocks}>
-      <MemoryRouter initialEntries={["/"]}>
+      <MemoryRouter initialEntries={["/"]} future={routerFuture}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/listings/:location" element={<div>Listings page</div>} />
