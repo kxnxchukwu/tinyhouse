@@ -1,0 +1,15 @@
+{
+  "name": "tinyhouse",
+  "private": true,
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev:server": "pnpm --filter tinyhouse-server start",
+    "dev:client": "pnpm --filter client start",
+    "lint": "pnpm --filter tinyhouse-server lint",
+    "typecheck": "pnpm --filter tinyhouse-server typecheck",
+    "test": "pnpm --filter tinyhouse-server test"
+  }
+}
