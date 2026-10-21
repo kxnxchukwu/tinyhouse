@@ -3,7 +3,7 @@ import {Link} from "react-router-dom";
 import { Avatar, Button, Menu } from "antd";
 import {HomeOutlined, UserOutlined, LogoutOutlined} from '@ant-design/icons';
 import { Viewer } from "../../../../lib/types";
-import { useMutation } from "@apollo/react-hooks";
+import { useMutation } from "@apollo/client";
 import { LogOut as LogOutData } from "../../../../lib/graphql/mutations/LogOut/__generated__/LogOut";
 import {LOG_OUT} from "../../../../lib/graphql/mutations"
 import { displayErrorMessage, displaySuccessNotification } from "../../../../lib/utils";

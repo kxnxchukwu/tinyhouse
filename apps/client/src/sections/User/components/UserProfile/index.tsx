@@ -2,7 +2,7 @@ import React from "react";
 import { User as UserData } from "../../../../lib/graphql/queries/User/__generated__/User";
 import { Avatar, Button, Card, Divider, Tag, Typography } from "antd";
 import {displayErrorMessage, displaySuccessNotification, formatListingPrice} from "../../../../lib/utils";
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 import { DISCONNECT_STRIPE } from "../../../../lib/graphql/mutations";
 import { DisconnectStripe as DisconnectStripeData } from "../../../../lib/graphql/mutations/DisconnectStripe/__generated__/DisconnectStripe";
 import { Viewer } from "../../../../lib/types"
@@ -14,7 +14,7 @@ interface Props {
   handleUserRefetch: () => Promise<void>;
 }
 
-const stripeAuthUrl = `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${process.env.REACT_APP_S_CLIENT_ID}&scope=read_write`;
+const stripeAuthUrl = `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${import.meta.env.VITE_S_CLIENT_ID}&scope=read_write`;
 
 const { Paragraph, Text, Title } = Typography;
 

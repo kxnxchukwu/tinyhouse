@@ -1,4 +1,4 @@
-import { gql } from "apollo-boost";
+import { gql } from "@apollo/client";
 
 export const CONNECT_STRIPE = gql`
     mutation ConnectStripe($input: ConnectStripeInput!) {

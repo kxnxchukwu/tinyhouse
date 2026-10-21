@@ -1,5 +1,5 @@
 import { message, notification } from "antd";
-0
+
 export const iconColor = "#1890ff";
 
 export const formatListingPrice = (price: number, round= true): string => {
@@ -20,4 +20,8 @@ export const displaySuccessNotification = (message: string, description?: string
 
 export const displayErrorMessage = (error: string) => {
     return message.error(error);
+}
+// Full-page navigation to another origin (OAuth providers). Wrapped so tests can stub it.
+export const redirectTo = (url: string) => {
+    window.location.assign(url);
 }

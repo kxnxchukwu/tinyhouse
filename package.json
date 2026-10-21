@@ -7,9 +7,10 @@
   },
   "scripts": {
     "dev:server": "pnpm --filter tinyhouse-server start",
-    "dev:client": "pnpm --filter client start",
+    "dev:client": "pnpm --filter client dev",
     "lint": "pnpm --filter tinyhouse-server lint",
-    "typecheck": "pnpm --filter tinyhouse-server typecheck",
-    "test": "pnpm --filter tinyhouse-server test"
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "build": "pnpm -r build"
   }
 }

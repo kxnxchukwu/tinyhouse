@@ -4,7 +4,7 @@ import { HomeHero, HomeListings, HomeListingsSkeleton } from './components';
 import { useNavigate, Link  } from 'react-router-dom';
 import { displayErrorMessage } from '../../lib/utils';
 import { LISTINGS } from '../../lib/graphql/queries';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery } from '@apollo/client';
 import { Listings as ListingsData, ListingsVariables } from '../../lib/graphql/queries/Listings/__generated__/Listings';
 import { ListingsFilter } from '../../lib/graphql/globalTypes';
 import mapBackground from "./assets/map-background.jpg";

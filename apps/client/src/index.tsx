@@ -1,29 +1,28 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createRoot } from 'react-dom/client';
 import {BrowserRouter as Router, Routes as Switch, Route} from "react-router-dom"
-import ApolloClient from "apollo-boost";
-import { ApolloProvider, useMutation } from "@apollo/react-hooks";
+import { ApolloClient, ApolloProvider, InMemoryCache, createHttpLink, useMutation } from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
 import { AppHeader, Home, Host, Listing, Listings, Login, NotFound, Stripe, User } from "./sections";
 import { Affix, Layout, Spin } from "antd";
 import { Viewer } from "./lib/types";
 import { LOG_IN } from "./lib/graphql/mutations";
 import { LogIn as LogInData, LogInVariables } from "./lib/graphql/mutations/LogIn/__generated__/LogIn";
-import * as serviceWorker from "./serviceWorker";
 import "./styles/index.css";
 import { AppHeaderSkeleton, ErrorBanner } from "./lib/components";
 import { StripeProvider, Elements } from "react-stripe-elements";
 import { Navigate } from 'react-router-dom'
 
-const client = new ApolloClient({
-  uri: "/api",
-  request: async operation => {
-    const token = sessionStorage.getItem("token");
-    operation.setContext({
-      headers: {
-        "X-CSRF-TOKEN": token || ""
-      }
-    });
+const csrfLink = setContext((_operation, { headers }) => ({
+  headers: {
+    ...headers,
+    "X-CSRF-TOKEN": sessionStorage.getItem("token") || ""
   }
+}));
+
+const client = new ApolloClient({
+  link: csrfLink.concat(createHttpLink({ uri: "/api" })),
+  cache: new InMemoryCache()
 });
 
 const container = document.getElementById('root')!;
@@ -51,7 +50,8 @@ const App = () => {
           sessionStorage.removeItem("token");
         }
       }
-    }
+    },
+    onError: () => {} // `error` above drives the banner; this stops the promise rejecting unhandled
   });
 
   const logInRef = useRef(logIn);
@@ -75,7 +75,7 @@ const App = () => {
 
   return (
     <>
-    <StripeProvider apiKey={process.env.REACT_APP_S_PUBLISHABLE_KEY as string}>
+    <StripeProvider apiKey={import.meta.env.VITE_S_PUBLISHABLE_KEY}>
     <Router>
     <Layout id="app">
       {logInErrorBannerElement}
@@ -107,7 +107,7 @@ root.render(
   </ApolloProvider>
 );
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+// Older Create React App builds registered a service worker; remove it from returning browsers.
+navigator.serviceWorker?.getRegistrations().then(registrations => {
+  registrations.forEach(registration => registration.unregister());
+});

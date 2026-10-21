@@ -1,4 +1,4 @@
-import { gql } from "apollo-boost";
+import { gql } from "@apollo/client";
 
 export const LISTING = gql`
   query Listing($id: ID!, $bookingsPage: Int!, $limit: Int!) {
