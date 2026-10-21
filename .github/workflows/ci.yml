@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  server:
+    name: Server (lint, typecheck, test, build)
+    runs-on: ubuntu-latest
+    env:
+      # Shared by install (postinstall download) and tests so the cached mongod binary is reused.
+      MONGOMS_DOWNLOAD_DIR: /home/runner/.cache/mongodb-binaries
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Cache MongoDB binary
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/.cache/mongodb-binaries
+          key: mongodb-binaries-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter tinyhouse-server lint
+      - run: pnpm --filter tinyhouse-server typecheck
+      - run: pnpm --filter tinyhouse-server test
+      - run: pnpm --filter tinyhouse-server build
+
+  # The client joins CI once it moves from Create React App to Vite;
+  # react-scripts 2 can't build on Node 22.
