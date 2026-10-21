@@ -12,6 +12,9 @@ export const startDatabase = async () => {
     });
     const mongo = client.db("test");
     const db: Database = {
+        ping: async () => {
+            await mongo.command({ ping: 1 });
+        },
         bookings: mongo.collection("bookings"),
         listings: mongo.collection("listings"),
         users: mongo.collection("users")
