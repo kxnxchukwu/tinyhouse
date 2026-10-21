@@ -49,7 +49,7 @@ export const Login = ({ setViewer }: Props) => {
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const code = searchParams.get("code");
-    const state = searchParams.get("state") ?? "";
+    const state = searchParams.get("state") || "";
     if (code) {
       logInRef.current({
         variables: {
