@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {useParams} from 'react-router-dom';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery } from '@apollo/client';
 import { LISTING } from "../../lib/graphql/queries";
 import { Listing as ListingData, ListingVariables } from '../../lib/graphql/queries/Listing/__generated__/Listing';
 import { ErrorBanner, PageSkeleton } from '../../lib/components';

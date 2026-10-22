@@ -1,4 +1,4 @@
-import { gql } from "apollo-boost";
+import { gql } from "@apollo/client";
 
 export const USER = gql`
   query User($id: ID!, $bookingsPage: Int!, $listingsPage: Int!, $limit: Int!) {

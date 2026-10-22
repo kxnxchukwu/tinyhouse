@@ -4,7 +4,7 @@ import moment,{ Moment } from "moment";
 import { KeyOutlined } from '@ant-design/icons';
 import { formatListingPrice, displayErrorMessage, displaySuccessNotification} from "../../../../lib/utils";
 import { CardElement, injectStripe, ReactStripeElements } from "react-stripe-elements";
-import { useMutation } from "@apollo/react-hooks";
+import { useMutation } from "@apollo/client";
 import  { CREATE_BOOKING } from "../../../../lib/graphql/mutations";
 import { CreateBooking as CreateBookingData, CreateBookingVariables } from "../../../../lib/graphql/mutations/CreateBooking/__generated__/CreateBooking";
 

@@ -1,206 +1,104 @@
-import React from "react";
-import { MemoryRouter } from "react-router-dom";
-import { render, fireEvent, waitFor } from "@testing-library/react";
-import { MockedProvider } from "@apollo/react-testing";
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { GraphQLError } from "graphql";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Login } from "../index";
 import { AUTH_URL } from "../../../lib/graphql/queries";
 import { LOG_IN } from "../../../lib/graphql/mutations";
-import { GraphQLError } from "graphql";
+import { redirectTo } from "../../../lib/utils";
+import { routerFuture } from "../../../lib/router";
 
-const defaultProps = {
-  setViewer: () => {},
+vi.mock("../../../lib/utils", async importOriginal => ({
+  ...(await importOriginal<typeof import("../../../lib/utils")>()),
+  redirectTo: vi.fn()
+}));
+
+const ERROR_TEXT = "Sorry! We weren't able to log you in. Please try again later!";
+
+const viewer = {
+  __typename: "Viewer",
+  id: "112",
+  token: "token-1234",
+  avatar: "image.png",
+  hasWallet: false,
+  didRequest: true
 };
 
-describe("Login", () => {
-  // avoid console warnings around scrollTo
-  window.scrollTo = () => {};
+const logInRequest = {
+  query: LOG_IN,
+  variables: { input: { code: "1234", state: "abcd" } }
+};
 
-  describe("AUTH_URL Query", () => {
-    it("redirects the user when query is successful", async () => {
-      window.location.assign = jest.fn();
-      const authUrlMock = {
-        request: {
-          query: AUTH_URL,
-        },
-        result: {
-          data: {
-            authUrl: "https://google.com/signin",
-          },
-        },
-      };
-      const loginRoute = "/login";
-      const { getByRole, queryByText } = render(
-        <MockedProvider mocks={[authUrlMock]} addTypename={false}>
-          <MemoryRouter initialEntries={[loginRoute]}>
-            <Login {...defaultProps} />
-          </MemoryRouter>
-        </MockedProvider>
-      );
-      const authUrlButton = getByRole("button");
-      fireEvent.click(authUrlButton);
+const renderLogin = (route: string, mocks: MockedResponse[], setViewer = vi.fn()) =>
+  render(
+    <MockedProvider mocks={mocks}>
+      <MemoryRouter initialEntries={[route]} future={routerFuture}>
+        <Routes>
+          <Route path="/login" element={<Login setViewer={setViewer} />} />
+          <Route path="/user/:id" element={<div>User page</div>} />
+        </Routes>
+      </MemoryRouter>
+    </MockedProvider>
+  );
+
+describe("Login", () => {
+  beforeEach(() => {
+    vi.mocked(redirectTo).mockClear();
+  });
+
+  describe("sign in with Google", () => {
+    it("redirects to the Google auth URL when the query succeeds", async () => {
+      renderLogin("/login", [
+        { request: { query: AUTH_URL }, result: { data: { authUrl: "https://google.com/signin" } } }
+      ]);
+
+      fireEvent.click(screen.getByRole("button", { name: /sign in with google/i }));
 
       await waitFor(() => {
-        expect(window.location.assign).toHaveBeenCalledWith(
-          "https://google.com/signin"
-        );
-        expect(
-          queryByText(
-            "Sorry! We weren't able to log you in. Please try again later!"
-          )
-        ).toBeNull();
+        expect(redirectTo).toHaveBeenCalledWith("https://google.com/signin");
       });
+      expect(screen.queryByText(ERROR_TEXT)).not.toBeInTheDocument();
     });
 
-    it("does not redirect the user when query is not successful", async () => {
-      window.location.assign = jest.fn();
+    it("shows an error and stays put when the query fails", async () => {
+      renderLogin("/login", [
+        { request: { query: AUTH_URL }, result: { errors: [new GraphQLError("Something went wrong!")] } }
+      ]);
 
-      const authUrlMock = {
-        request: {
-          query: AUTH_URL,
-        },
-        errors: [new GraphQLError("Something went wrong!")],
-      };
+      fireEvent.click(screen.getByRole("button", { name: /sign in with google/i }));
 
-      const loginRoute = "/login";
-
-      const { getByRole, queryByText } = render(
-        <MockedProvider mocks={[authUrlMock]} addTypename={false}>
-          <MemoryRouter initialEntries={[loginRoute]}>
-            <Login {...defaultProps} />
-          </MemoryRouter>
-        </MockedProvider>
-      );
-
-      const authUrlButton = getByRole("button");
-
-      fireEvent.click(authUrlButton);
-
-      await waitFor(() => {
-        expect(window.location.assign).not.toHaveBeenCalledWith(
-          "https://google.com/signin"
-        );
-        expect(
-          queryByText(
-            "Sorry! We weren't able to log you in. Please try again later!"
-          )
-        ).not.toBeNull();
-      });
+      expect(await screen.findByText(ERROR_TEXT)).toBeInTheDocument();
+      expect(redirectTo).not.toHaveBeenCalled();
     });
   });
 
-  describe("LOGIN Mutation", () => {
-    it("when no code exists ion the /login route, the mutation is not fired", async () => {
-      const logInMock = {
-        request: {
-          query: LOG_IN,
-          variables: {
-            input: {
-              code: "1234",
-              state: "abcd",
-            },
-          },
-        },
-        result: {
-          data: {
-            logIn: {
-              id: "112",
-              token: "token-1234",
-              avatar: "image.png",
-              hasWallet: false,
-              didRequest: true,
-            },
-          },
-        },
-      };
+  describe("Google callback", () => {
+    it("does not log in when there is no code in the URL", async () => {
+      const result = vi.fn(() => ({ data: { logIn: viewer } }));
+      renderLogin("/login", [{ request: logInRequest, result }]);
 
-      const loginRoute = "/login";
-
-      render(
-        <MockedProvider mocks={[logInMock]} addTypename={false}>
-          <MemoryRouter initialEntries={[loginRoute]}>
-            <Login {...defaultProps} />
-          </MemoryRouter>
-        </MockedProvider>
-      );
-
-      await waitFor(() => {
-        expect(window.location.pathname).not.toBe("/user/112");
-      });
+      expect(await screen.findByRole("button", { name: /sign in with google/i })).toBeInTheDocument();
+      expect(result).not.toHaveBeenCalled();
     });
 
-    describe("when code exists in the /login route as a query parameter", () => {
-      it("redirects the user to their user page when the login mutation is sucessful", async () => {
-        const logInMock = {
-          request: {
-            query: LOG_IN,
-            variables: {
-              input: {
-                code: "1234",
-                state: "abcd",
-              },
-            },
-          },
-          result: {
-            data: {
-              logIn: {
-                id: "112",
-                token: "token-1234",
-                avatar: "image.png",
-                hasWallet: false,
-                didRequest: true,
-              },
-            },
-          },
-        };
+    it("logs in with the code and state, stores the CSRF token and opens the user page", async () => {
+      const setViewer = vi.fn();
+      renderLogin("/login?code=1234&state=abcd", [{ request: logInRequest, result: { data: { logIn: viewer } } }], setViewer);
 
-        const loginRoute = "/login?code=1234&state=abcd";
+      expect(await screen.findByText("User page")).toBeInTheDocument();
+      expect(setViewer).toHaveBeenCalledWith(viewer);
+      expect(sessionStorage.getItem("token")).toBe("token-1234");
+    });
 
-        render(
-          <MockedProvider mocks={[logInMock]} addTypename={false}>
-            <MemoryRouter initialEntries={[loginRoute]}>
-              <Login {...defaultProps} />
-            </MemoryRouter>
-          </MockedProvider>
-        );
+    it("shows an error and stays on the login page when the mutation fails", async () => {
+      renderLogin("/login?code=1234&state=abcd", [
+        { request: logInRequest, result: { errors: [new GraphQLError("Login state does not match.")] } }
+      ]);
 
-        await waitFor(() => {
-          expect(window.location.pathname).toBe("/user/112");
-        });
-      });
-
-      it("does not redirect the user to their user page and displays an error message when the login mutation is unsuccesful", async () => {
-        const logInMock = {
-          request: {
-            query: LOG_IN,
-            variables: {
-              input: {
-                code: "1234",
-                state: "abcd",
-              },
-            },
-          },
-          errors: [new GraphQLError("Something went wrong")],
-        };
-
-        const loginRoute = "/login?code=1234&state=abcd";
-
-        const { queryByText } = render(
-          <MockedProvider mocks={[logInMock]} addTypename={false}>
-            <MemoryRouter initialEntries={[loginRoute]}>
-              <Login {...defaultProps} />
-            </MemoryRouter>
-          </MockedProvider>
-        );
-
-        await waitFor(() => {
-          expect(window.location.pathname).not.toBe("/user/112");
-          expect(
-            queryByText(
-              "Sorry! We weren't able to log you in. Please try again later!"
-            )
-          ).not.toBeNull();
-        });
-      });
+      expect(await screen.findByText(ERROR_TEXT)).toBeInTheDocument();
+      expect(screen.queryByText("User page")).not.toBeInTheDocument();
+      expect(sessionStorage.getItem("token")).toBeNull();
     });
   });
 });

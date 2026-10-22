@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 import { Layout, Spin } from 'antd';
 import { CONNECT_STRIPE } from '../../lib/graphql/mutations';
 import { ConnectStripe as ConnectStripeData, ConnectStripeVariables } from '../../lib/graphql/mutations/ConnectStripe/__generated__/ConnectStripe';

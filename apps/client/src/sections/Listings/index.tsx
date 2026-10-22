@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/client";
 import { Link, useParams } from 'react-router-dom';
 import { Affix, Layout, List, Typography } from "antd";
 import { ErrorBanner, ListingCard } from "../../lib/components";

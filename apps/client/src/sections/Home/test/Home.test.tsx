@@ -1,182 +1,116 @@
-import React from "react";
-import "@testing-library/jest-dom";
-import { createMemoryHistory } from "history";
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { describe, expect, it } from "vitest";
 import { Home } from "../index";
-import { render, fireEvent, waitFor } from "@testing-library/react";
-import { MockedProvider } from "@apollo/client/testing";
-import { MemoryRouter } from "react-router-dom";
 import { LISTINGS } from "../../../lib/graphql/queries";
-import { ListingsFilter } from "../../../lib/graphql/globalTypes"
+import { ListingsFilter } from "../../../lib/graphql/globalTypes";
+import { routerFuture } from "../../../lib/router";
 
-describe("Home Component", () => {
-  window.scrollTo = () => {};
-  it("First Test!", () => {
-    expect(1).toEqual(1);
-  });
+const listingsRequest = {
+  query: LISTINGS,
+  variables: {
+    filter: ListingsFilter.PRICE_HIGH_TO_LOW,
+    limit: 4,
+    page: 1
+  }
+};
 
-describe("Search Input", () => {
-    it("Renders an Empty Search Input on Inital Render", async () => {
-      //const history = createMemoryHistory();
-      const homeRoute = "/";
-
-      const { getByPlaceholderText } = render(
-        <MockedProvider mocks={[]}>
-          <MemoryRouter initialEntries={[homeRoute]}>
-            <Home />
-          </MemoryRouter>
-        </MockedProvider>
-      );
-
-      await waitFor(() => {
-        const searchInput = getByPlaceholderText(
-          "Search 'San Fransisco'"
-        ) as HTMLInputElement;
-        expect(searchInput.value).toEqual("");
-      });
-    });
-
-    it("Redirects the User to the /listings page when a valid search is provided", async () => {
-      const history = createMemoryHistory();
-      const homeRoute = "/";
-      const { getByPlaceholderText } = render(
-        <MockedProvider mocks={[]}>
-          <MemoryRouter initialEntries={[homeRoute]}>
-            <Home />
-          </MemoryRouter>
-        </MockedProvider>
-      );
-
-      await waitFor(() => {
-        const searchInput = getByPlaceholderText(
-          "Search 'San Fransisco'"
-        ) as HTMLInputElement;
-        
-        fireEvent.change(searchInput, { target: { value: "Toronto" }});
-        fireEvent.keyDown(searchInput, {
-          key: "Enter",
-          keyCode: 13
-        });
-
-        expect(history.location.pathname).toBe("/listings/Toronto");
-      });
-    });
-
-    it("Does not Redirect the User to the /listings page when an invalid search is provided", async () => {
-      const history = createMemoryHistory();
-      const homeRoute = "/";
-      const { getByPlaceholderText } = render(
-        <MockedProvider mocks={[]}>
-          <MemoryRouter initialEntries={[homeRoute]}>
-            <Home />
-          </MemoryRouter>
-        </MockedProvider>
-      );
-
-      await waitFor(() => {
-        const searchInput = getByPlaceholderText(
-          "Search 'San Fransisco'"
-        ) as HTMLInputElement;
-        
-        fireEvent.change(searchInput, { target: { value: "" }});
-        fireEvent.keyDown(searchInput, {
-          key: "Enter",
-          keyCode: 13
-        });
-
-        expect(history.location.pathname).toBe("/");
-      });
-    })
-  });
-});
-
-describe("Premium Listings", () => {
-
-  it("Renders the Loading State when the query is loading", async () => {
-    const history = createMemoryHistory();
-    const homeRoute = "/";
-    const { queryByText } = render(
-      <MockedProvider mocks={[]}>
-        <MemoryRouter initialEntries={[homeRoute]}>
-          <Home />
-        </MemoryRouter>
-      </MockedProvider>
-    );
-
-    await waitFor(() => {
-      expect(queryByText("Premium Listings - Loading")).not.toBeNull();
-      expect(queryByText("Premium Listings")).toBeNull();
-    });
-
-  });
-
-  it("Renders the intended UI when the query is successful", async () => {
-    const listingsMock = {
-      request: {
-        query: LISTINGS,
-        variables: {
-          filter: ListingsFilter.PRICE_HIGH_TO_LOW,
-          limit: 4,
-          page: 1,
-        },
-      },
-      result: {
-        data: {
-          listings: {
-            region: null,
-            total: 10,
-            result: [
-              {
-                id: "1234",
-                title: "Bev. Hills",
-                image: "image.png",
-                address: "90210 Bev. Hills",
-                price: 9000,
-                numOfGuests: 5,
-              }
-            ]
+const listingsSuccess: MockedResponse = {
+  request: listingsRequest,
+  result: {
+    data: {
+      listings: {
+        __typename: "Listings",
+        region: null,
+        total: 10,
+        result: [
+          {
+            __typename: "Listing",
+            id: "1234",
+            title: "Bev. Hills",
+            image: "image.png",
+            address: "90210 Bev. Hills",
+            price: 9000,
+            numOfGuests: 5
           }
-        }
-      } 
-    };
-    const homeRoute = "/";
-    const { queryByText } = render(
-      <MockedProvider mocks={[listingsMock]} addTypename={false}>
-        <MemoryRouter initialEntries={[homeRoute]}>
-          <Home />
-        </MemoryRouter>
-      </MockedProvider>
-    );
+        ]
+      }
+    }
+  }
+};
 
-    await waitFor(() => {
-      expect(queryByText("Premium Listings")).not.toBeNull();
-      expect(queryByText("Premium Listings - Loading")).toBeNull();
+const LocationDisplay = () => <div data-testid="location">{useLocation().pathname}</div>;
+
+const renderHome = (mocks: MockedResponse[] = [listingsSuccess]) =>
+  render(
+    <MockedProvider mocks={mocks}>
+      <MemoryRouter initialEntries={["/"]} future={routerFuture}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/listings/:location" element={<div>Listings page</div>} />
+        </Routes>
+        <LocationDisplay />
+      </MemoryRouter>
+    </MockedProvider>
+  );
+
+const search = (value: string) => {
+  const input = screen.getByPlaceholderText("Search 'San Fransisco'");
+  fireEvent.change(input, { target: { value } });
+  fireEvent.keyDown(input, { key: "Enter", keyCode: 13 });
+};
+
+describe("Home", () => {
+  describe("search input", () => {
+    it("renders empty on first render", () => {
+      renderHome();
+
+      expect(screen.getByPlaceholderText("Search 'San Fransisco'")).toHaveValue("");
+    });
+
+    it("navigates to the listings page for a valid search", async () => {
+      renderHome();
+
+      search("  Toronto ");
+
+      expect(await screen.findByText("Listings page")).toBeInTheDocument();
+      expect(screen.getByTestId("location")).toHaveTextContent("/listings/Toronto");
+    });
+
+    it("stays on the home page and shows an error for an empty search", async () => {
+      renderHome();
+
+      search("   ");
+
+      expect(await screen.findByText("Please enter a valid search!")).toBeInTheDocument();
+      expect(screen.getByTestId("location")).toHaveTextContent(/^\/$/);
     });
   });
 
-  it("Does not Render the loading section or the listing section when the query has an error", async () => {
-    const listingsMock = {
-      request: {
-        query: LISTINGS,
-        variables: {
-          filter: ListingsFilter.PRICE_HIGH_TO_LOW,
-          limit: 4,
-          page: 1,
-        },
-      },
-      error: new Error("Network Error"),
-    };
-    const homeRoute = "/";
-    const { queryByText } = render(
-      <MockedProvider mocks={[listingsMock]} addTypename={false}>
-        <MemoryRouter initialEntries={[homeRoute]}>
-          <Home />
-        </MemoryRouter>
-      </MockedProvider>
-    );
+  describe("premium listings", () => {
+    it("shows the loading state while the query is in flight", () => {
+      renderHome();
 
-    await waitFor(() => {
-      expect(queryByText("Premium Listings")).toBeNull();
-      expect(queryByText("Premium Listings - Loading")).toBeNull();
+      expect(screen.getByText("Premium Listings - Loading")).toBeInTheDocument();
+      expect(screen.queryByText("Premium Listings")).not.toBeInTheDocument();
+    });
+
+    it("shows the listings when the query succeeds", async () => {
+      renderHome();
+
+      expect(await screen.findByText("Premium Listings")).toBeInTheDocument();
+      expect(screen.getByText("Bev. Hills")).toBeInTheDocument();
+      expect(screen.queryByText("Premium Listings - Loading")).not.toBeInTheDocument();
+    });
+
+    it("renders neither section when the query fails", async () => {
+      renderHome([{ request: listingsRequest, error: new Error("Network Error") }]);
+
+      await waitFor(() => {
+        expect(screen.queryByText("Premium Listings - Loading")).not.toBeInTheDocument();
+      });
+      expect(screen.queryByText("Premium Listings")).not.toBeInTheDocument();
     });
   });
 });

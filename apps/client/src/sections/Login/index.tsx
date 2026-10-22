@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { useApolloClient, useMutation } from "@apollo/react-hooks";
+import { useApolloClient, useMutation } from "@apollo/client";
 import { Card, Layout, Typography, Spin } from "antd";
 import { AuthUrl as AuthUrlData } from "../../lib/graphql/queries/AuthUrl/__generated__/AuthUrl";
 import {
@@ -12,6 +12,7 @@ import { ErrorBanner } from "../../lib/components";
 import {
   displaySuccessNotification,
   displayErrorMessage,
+  redirectTo,
 } from "../../lib/utils";
 import { Viewer } from "../../lib/types";
 import { Navigate, useLocation } from "react-router-dom";
@@ -69,7 +70,7 @@ export const Login = ({ setViewer }: Props) => {
         throw new Error("Unable to Authenticate");
       }
 
-      window.location.assign(data.authUrl);
+      redirectTo(data.authUrl);
     } catch (error) {
       displayErrorMessage(
         "Sorry! We weren't able to log you in. Please try again later!"

@@ -13,6 +13,9 @@ export const connectDatabase = async (): Promise<Database> => {
   const db = client.db("main");
 
   return {
+    ping: async () => {
+      await db.command({ ping: 1 });
+    },
     bookings: db.collection<Booking>("bookings"),
     listings: db.collection<Listing>("listings"),
     users: db.collection<User>("users")

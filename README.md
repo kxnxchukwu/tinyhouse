@@ -7,7 +7,7 @@ A home-sharing marketplace: hosts list homes, guests book them and pay through S
 | Path | What |
 |---|---|
 | `apps/server` | Express + Apollo GraphQL API, MongoDB |
-| `apps/client` | React client (Create React App, moving to Vite) |
+| `apps/client` | React 18 client: Vite, Apollo Client 3, Ant Design |
 
 ## Development
 
@@ -30,3 +30,4 @@ pnpm test
 ```
 
 Server tests run resolvers against a real MongoDB (`mongodb-memory-server`); Stripe and Google are mocked.
+Client tests use Vitest, Testing Library and Apollo's `MockedProvider`.

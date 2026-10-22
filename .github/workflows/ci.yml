@@ -40,7 +40,7 @@ jobs:
       - run: pnpm --filter tinyhouse-server build
 
   client:
-    name: Client (build)
+    name: Client (typecheck, test, build)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -56,6 +56,6 @@ jobs:
         env:
           MONGOMS_DISABLE_POSTINSTALL: "1"
 
-      # The build also type-checks. Client tests join once the Vite + Vitest move
-      # replaces the Create React App test setup, which can't currently run.
+      - run: pnpm --filter client typecheck
+      - run: pnpm --filter client test
       - run: pnpm --filter client build
