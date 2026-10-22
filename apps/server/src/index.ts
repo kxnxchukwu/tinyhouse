@@ -1,36 +1,21 @@
 //require("dotenv").config();
-
-import express, { Application } from "express";
-import bodyParser from "body-parser";
-import cookieParser from "cookie-parser";
-import { ApolloServer } from "apollo-server-express";
 import { connectDatabase } from "./database";
-import { typeDefs, resolvers } from "./graphql";
-import compression from "compression";
+import { createApp } from "./app";
 
-const mount = async (app: Application) => {
+const mount = async () => {
   const db = await connectDatabase();
+  const app = await createApp(db);
+  const port = process.env.PORT;
 
-  app.use(bodyParser.json({ limit: "2mb" }));
-  app.use(cookieParser(process.env.SECRET));
-  app.use(compression());
-
-  //app.use(express.static(`${__dirname}/client`));
-  //app.get("/*", (_req, res) => res.sendFile(`${__dirname}/client/index.html`));
-
-  const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    context: ({req, res}) => ({ db, req, res })
+  app.listen(port, () => {
+    console.log(`Server listening on port ${port}`);
   });
-
-  server.applyMiddleware({ app, path: "/api" });
-  app.listen(process.env.PORT);
-
-  console.log(`[app] : http://localhost:${process.env.PORT}`);
 };
 
-mount(express());
+mount().catch((error) => {
+  console.error("Failed to start server:", error);
+  process.exit(1);
+});
 
 // Note: You will need to introduce a .env file at the root of the project
 // that has the PORT, DB_USER, DB_USER_PASSWORD, and DB_CLUSTER environment variables defined.

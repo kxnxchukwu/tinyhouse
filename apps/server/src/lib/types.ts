@@ -61,6 +61,7 @@ export interface User {
 }
 
 export interface Database {
+  ping: () => Promise<void>;
   bookings: Collection<Booking>;
   listings: Collection<Listing>;
   users: Collection<User>;

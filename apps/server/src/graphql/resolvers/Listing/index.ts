@@ -90,7 +90,9 @@ export const listingResolvers: IResolvers = {
 
             return data
         } catch(error) {
-            throw new Error(`Failed to query listings: ${JSON.stringify(error)}`);
+            const message = error instanceof Error ? error.message : String(error);
+
+            throw new Error(`Failed to query listings: ${message}`);
         }
     }
   },
